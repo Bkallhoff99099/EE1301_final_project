@@ -8,6 +8,7 @@
 
 // Include Particle Device OS APIs
 #include "Particle.h"
+#include "neopixel.h"
 
 // Let Device OS manage the connection to the Particle Cloud
 SYSTEM_MODE(AUTOMATIC);
@@ -19,8 +20,24 @@ SYSTEM_THREAD(ENABLED);
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
+int redButtonPin = D1;
+int blueButtonPin = D2;
+int greenButtonPin = D3;
+int yellowButtonPin = D4;
+
+int pixel_count = 3;
+#define PIXEL_PIN SPI
+int PIXEL_TYPE = WS2812;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixel_count, PIXEL_PIN, PIXEL_TYPE);
+
+
 // setup() runs once, when the device is first turned on
 void setup() {
+  pinMode(redButtonPin, INPUT_PULLDOWN);
+  pinMode(blueButtonPin, INPUT_PULLDOWN);
+  pinMode(greenButtonPin, INPUT_PULLDOWN);
+  pinMode(yellowButtonPin, INPUT_PULLDOWN);
+  strip.begin();
   // Put initialization like pinMode and begin functions here
 }
 
