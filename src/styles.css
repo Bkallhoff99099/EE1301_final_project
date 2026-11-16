@@ -1,0 +1,55 @@
+.redButton{
+    padding: 10px, 20px;
+    min-height: 30px;
+    min-width: 60px;
+    border-radius: 15px;
+    background-color: red;
+}
+
+.blueButton{
+    padding: 10px, 20px;
+    min-height: 30px;
+    min-width: 60px;
+    border-radius: 15px;
+    background-color: blue;
+}
+
+.greenButton{
+    padding: 10px, 20px;
+    min-height: 30px;
+    min-width: 60px;
+    border-radius: 15px;
+    background-color: rgb(72, 255, 72);
+}
+
+.yellowButton{
+    padding: 10px, 20px;
+    min-height: 10px;
+    min-width: 20px;
+    border-radius: 15px;
+    background-color: yellow;
+    display: block;
+    margin: 0 auto;
+}
+
+.pageNavigation{
+    padding: 10px, 20px;
+    min-height: 10px;
+    min-width: 20px;
+    border-radius: 5px;
+    background-color: grey;
+    margin: 0;
+    
+}
+
+.main_buttons_div{
+    display: flex;
+    align-items: center;
+    height: 50px;
+    gap: 12px;
+    justify-content: center;
+}
+
+.centered_text{
+    text-align: center;
+}
