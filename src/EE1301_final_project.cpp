@@ -10,6 +10,7 @@
 #include "Particle.h"
 #include "neopixel.h"
 #include <string>
+using namespace std;
 
 // Let Device OS manage the connection to the Particle Cloud
 SYSTEM_MODE(AUTOMATIC);
@@ -44,15 +45,18 @@ enum programState {
   SET_PASSWORD //unsure if this is needed
 };
 
-//cloud variables
+
 programState currState = LOCKED;
 string currPassword = "rgbrgb"; 
 string currGuess = "......";
-int currGuesIndex = 0;
+int currGuessIndex = 0;
+bool password_verified = false;
+int num_failed_attempts = 0;
 
-bool verifyGuess(int guess); //checks if currentGuess matches the password
+bool verifyGuess(string guess); //checks if currentGuess matches the password
 void changeState(programState newState); //allows for smooth transitions to start/end states
 void modifyGuess(char newChar); //used to add input to current guess
+void resetAlarm();
 
 //cloud methods
 void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
@@ -85,15 +89,21 @@ void inputHandler(int buttonID){
     case 4: //reset password button
       changeState(SET_PASSWORD);
       break;
+    case 5:
+      resetAlarm();
+      break;
   }
 }
 
 void changeState(programState newState){
   if(newState == LOCKED){
+    password_verified = false;
     servo.attach(servoPin);
     servo.write(servoClosed);
     servo.detach(); //necessary to use speaker
   }else if(newState == OPEN){
+    password_verified = true;
+    num_failed_attempts = 0;
     servo.attach(servoPin);
     servo.write(servoOpen);
     servo.detach(); //necessary to use speaker
@@ -101,6 +111,50 @@ void changeState(programState newState){
 
   }else if(newState == SET_PASSWORD){
 
+  }
+}
+
+bool verifyGuess(string guess){
+  for(int i = 0; i < 6; i++){
+    if(guess[i] != currPassword[i])
+        return false;
+  }
+  return true; //only runs if all match
+}
+
+void modifyGuess(char newChar){
+  currGuess[currGuessIndex] = newChar;
+  currGuessIndex++
+  if(currGuessIndex >= 6){
+
+    if(currState == LOCKED){ //normal behavior
+      if(verifyGuess(currGuess)){
+        changeState(OPEN);
+      }else{
+        num_failed_attempts++;
+        if(num_failed_attempts > 3){
+          changeState(ALARM);
+        }
+      }
+
+    }else if (currState == SET_PASSWORD){ //reset password behavior
+      if(password_verified){
+        currPassword = currGuess;
+      }else{
+        password_verified = true;
+      }
+    }
+
+    currGuessIndex = 0;
+    currGuess = "......";
+    
+  }
+}
+
+void resetAlarm(){
+  if(currState == ALARM){ //prevents unintended state changes
+    num_failed_attempts = 0;
+    changeState(LOCKED);
   }
 }
 
