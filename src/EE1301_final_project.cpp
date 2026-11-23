@@ -22,19 +22,19 @@ SYSTEM_THREAD(ENABLED);
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
-int redButtonPin = D1;
-int blueButtonPin = D2;
+int redButtonPin = D2;
+int blueButtonPin = D4;
 int greenButtonPin = D3;
-int yellowButtonPin = D4;
+int yellowButtonPin = D5;
 int servoPin = A5; //must be either A5 or A2
 int speakerPin = A2; //must be either A5 or A2
 
-#define RED_BUTTON_ID = 0;
-#define BLUE_BUTTON_ID = 1;
-#define GREEN_BUTTON_ID = 2;
-#define YELLOW_BUTTON_ID = 3;
-#define RESET_PASSWORD_BUTTON_ID = 4;
-#define RESET_ALARM_BUTTON_ID = 5;
+const int RED_BUTTON_ID = 0;
+const int BLUE_BUTTON_ID = 1;
+const int GREEN_BUTTON_ID = 2;
+const int YELLOW_BUTTON_ID = 3;
+const int RESET_PASSWORD_BUTTON_ID = 4;
+const int RESET_ALARM_BUTTON_ID = 5;
 
 Servo servo; //do not initialize in the setup method
 const int servoClosed = 90;
@@ -63,7 +63,7 @@ bool verifyGuess(string guess); //checks if currentGuess matches the password
 void changeState(programState newState); //allows for smooth transitions to start/end states
 void modifyGuess(char newChar); //used to add input to current guess
 void resetAlarm();
-void handleLEDS();
+void handleLEDs();
 
 //cloud methods
 void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
@@ -82,7 +82,7 @@ void setup() {
 }
 
 void inputHandler(int buttonID){
-  switch(input){
+  switch(buttonID){
     case RED_BUTTON_ID: 
       if(currState == LOCKED || currState == SET_PASSWORD){
         modifyGuess('r');
@@ -142,7 +142,7 @@ bool verifyGuess(string guess){
 
 void modifyGuess(char newChar){
   currGuess[currGuessIndex] = newChar;
-  currGuessIndex++
+  currGuessIndex++;
   if(currGuessIndex >= 6){
 
     if(currState == LOCKED){ //normal behavior
@@ -176,7 +176,7 @@ void resetAlarm(){
   }
 }
 
-void handleLEDS(){
+void handleLEDs(){
   switch(currState){
     case LOCKED:
       for(int i = 0; i < num_failed_attempts; i++){
@@ -196,8 +196,8 @@ void handleLEDS(){
   strip.show();
 }
 
-#define PRESSED = true;
-#define NOT_PRESSED = false;
+#define PRESSED true;
+#define NOT_PRESSED false;
 bool prevRedButtonState = NOT_PRESSED;
 bool prevBlueButtonState = NOT_PRESSED;
 bool prevGreenButtonState = NOT_PRESSED;
