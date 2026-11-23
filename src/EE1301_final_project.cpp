@@ -64,9 +64,25 @@ void changeState(programState newState); //allows for smooth transitions to star
 void modifyGuess(char newChar); //used to add input to current guess
 void resetAlarm();
 void handleLEDS();
+void flashAlarmLights();
 
 //cloud methods
 void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
+
+// Keeps track of when the last button was pressed
+unsigned long lastButtonTime = 0;
+
+// Prevents one button press from be counted multiple times
+const unsigned long debounceDelay = 50; 
+
+// Tracks the last time the alarm lights changed
+unsigned long lastAlarmTime = 0;
+
+//Every 500 milliseconds
+const unsigned long alarmInterval = 500;
+
+//Keeps track of whether the alarm lights are on or off
+bool alarmLightOn = false;
 
 //cloud variables
 bool password_verified = false;
@@ -77,12 +93,15 @@ void setup() {
   pinMode(blueButtonPin, INPUT_PULLDOWN);
   pinMode(greenButtonPin, INPUT_PULLDOWN);
   pinMode(yellowButtonPin, INPUT_PULLDOWN);
+  pinMode(speakerPin, OUTPUT);
   strip.begin();
+
+  Serial.begin(9600);
   // Put initialization like pinMode and begin functions here
 }
 
 void inputHandler(int buttonID){
-  switch(input){
+  switch(buttonID){
     case RED_BUTTON_ID: 
       if(currState == LOCKED || currState == SET_PASSWORD){
         modifyGuess('r');
@@ -169,6 +188,35 @@ void modifyGuess(char newChar){
   }
 }
 
+void flashAlarmLights() {
+
+  //only runs if its in alarm mode
+  if (currState != ALARM) {
+    return; //if not in alarm mode it quits this if statement
+  }
+
+  //checks if the 500 milliseconds have passed
+  if (millis() - lastAlarmTime >= alarmInterval) {
+
+    lastAlarmTime = millis(); //updates time
+    alarmLightOn = !alarmLightOn; //switches between on and off? I think this is how you do it
+
+    //goes through each one and turns them red
+    for (int i = 0; i < 3; i++) {
+
+      if (alarmLightOn) {
+        //turns red
+        strip.setPixelColor(i, strip.Color(255, 0, 0));
+      }
+      else {
+        //turns off the lights
+        strip.setPixelColor(i, strip.Color(0, 0, 0));
+      }
+    }
+    strip.show();
+  }
+}
+
 void resetAlarm(){
   if(currState == ALARM){ //prevents unintended state changes
     num_failed_attempts = 0;
@@ -196,53 +244,58 @@ void handleLEDS(){
   strip.show();
 }
 
-#define PRESSED = true;
-#define NOT_PRESSED = false;
-bool prevRedButtonState = NOT_PRESSED;
-bool prevBlueButtonState = NOT_PRESSED;
-bool prevGreenButtonState = NOT_PRESSED;
-bool prevYellowButtonState = NOT_PRESSED;
+#define HIGH = true;
+#define LOW = false;
+bool prevRedButtonState = LOW;
+bool prevBlueButtonState = LOW;
+bool prevGreenButtonState = LOW;
+bool prevYellowButtonState = LOW;
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
 
-  //physical red button handling
-  if(digitalRead(redButtonPin) == HIGH && !prevRedButtonState){
-    inputHandler(RED_BUTTON_ID);
-    prevRedButtonState = PRESSED;
-  }
-  if(digitalRead(redButtonPin) == LOW){
-    prevRedButtonState = NOT_PRESSED;
-  }
+  int redState = digitalRead(redButtonPin);
+    int blueState = digitalRead(blueButtonPin);
+    int greenState = digitalRead(greenButtonPin);
+    int yellowState = digitalRead(yellowButtonPin);
 
-  //physical blue button handling
-  if(digitalRead(blueButtonPin) == HIGH && !prevBlueButtonState){
-    inputHandler(BLUE_BUTTON_ID);
-    prevBlueButtonState = PRESSED;
-  }
-  if(digitalRead(blueButtonPin) == LOW){
-    prevBlueButtonState = NOT_PRESSED;
-  }
+    // Makes sure enough time has passed since last button press
+    if (millis() - lastButtonTime >= debounceDelay) {
+      //these if statements check if that button was just pressed
+       if (redState == HIGH && prevRedButtonState == LOW) {
+            inputHandler(0);
+            lastButtonTime = millis();
+            Serial.println("Red Button Pressed");
+        }
 
-  //physical green button handling
-  if(digitalRead(greenButtonPin) == HIGH && !prevGreenButtonState){
-    inputHandler(GREEN_BUTTON_ID);
-    prevGreenButtonState = PRESSED;
-  }
-  if(digitalRead(greenButtonPin) == LOW){
-    prevGreenButtonState = NOT_PRESSED;
-  }
+        else if (greenState == HIGH && prevGreenButtonState == LOW) {
+            inputHandler(1);
+            lastButtonTime = millis();
+            Serial.println("Green Button Pressed");
+        }
 
+        else if (blueState == HIGH && prevBlueButtonState == LOW) {
+            inputHandler(2);
+            lastButtonTime = millis();
+            Serial.println("Blue Button Pressed");
+        }
 
-  //physical yellow button handling
-  if(digitalRead(yellowButtonPin) == HIGH && !prevYellowButtonState){
-    inputHandler(YELLOW_BUTTON_ID);
-    prevYellowButtonState = PRESSED;
-  }
-  if(digitalRead(yellowButtonPin) == LOW){
-    prevYellowButtonState = NOT_PRESSED;
-  }
+        else if (yellowState == HIGH && prevYellowButtonState == LOW) {
+            inputHandler(3);
+            lastButtonTime = millis();
+            Serial.println("Yellow Button Pressed");
+        }
+    }
 
-  handleLEDs();
+    //checks if the alarm needs to flash
+    flashAlarmLights();
+
+    //saves the current button states for the next loop
+    prevRedButtonState = redState;
+    prevBlueButtonState = blueState;
+    prevGreenButtonState = greenState;
+    prevYellowButtonState = yellowState; 
+    }
+  //handleLEDs(); 
     
-}
+
