@@ -217,7 +217,7 @@ void flashAlarmLights() {
 
       if (alarmLightOn) {
         //turns red
-        strip.setPixelColor(i, strip.Color(255, 0, 0));
+        strip.setPixelColor(i, strip.Color(0, 255, 0));
       }
       else {
         //turns off the lights
@@ -238,6 +238,9 @@ void resetAlarm(){
 void handleLEDs() {
   switch(currState){
     case LOCKED:
+      for(int i = 0; i < pixel_count; i++){
+        strip.setPixelColor(i, strip.Color(0,0,0));
+      }
       for(int i = 0; i < num_failed_attempts; i++){
         strip.setPixelColor(i, strip.Color(0, 255, 0)); //sets to red
       }
@@ -294,25 +297,25 @@ void loop() {
     if (millis() - lastButtonTime >= debounceDelay) {
       //these if statements check if that button was just pressed
        if (redState == HIGH && prevRedButtonState == LOW) {
-            inputHandler(0);
+            inputHandler(RED_BUTTON_ID);
             lastButtonTime = millis();
             Serial.println("Red Button Pressed");
         }
 
         else if (greenState == HIGH && prevGreenButtonState == LOW) {
-            inputHandler(1);
+            inputHandler(GREEN_BUTTON_ID);
             lastButtonTime = millis();
             Serial.println("Green Button Pressed");
         }
 
         else if (blueState == HIGH && prevBlueButtonState == LOW) {
-            inputHandler(2);
+            inputHandler(BLUE_BUTTON_ID);
             lastButtonTime = millis();
             Serial.println("Blue Button Pressed");
         }
 
         else if (yellowState == HIGH && prevYellowButtonState == LOW) {
-            inputHandler(3);
+            inputHandler(YELLOW_BUTTON_ID);
             lastButtonTime = millis();
             Serial.println("Yellow Button Pressed");
         }
