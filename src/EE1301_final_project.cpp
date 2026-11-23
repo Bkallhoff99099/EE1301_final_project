@@ -64,9 +64,10 @@ void changeState(programState newState); //allows for smooth transitions to star
 void modifyGuess(char newChar); //used to add input to current guess
 void resetAlarm();
 void handleLEDs();
+void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
 
 //cloud methods
-void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
+int cloud_input_handler(string input);
 
 //cloud variables
 bool password_verified = false;
@@ -77,8 +78,15 @@ void setup() {
   pinMode(blueButtonPin, INPUT_PULLDOWN);
   pinMode(greenButtonPin, INPUT_PULLDOWN);
   pinMode(yellowButtonPin, INPUT_PULLDOWN);
+  Particle.variable("User_verified_password", password_verified);
+  Particle.function("cloud_input", cloud_input_handler);
   strip.begin();
   // Put initialization like pinMode and begin functions here
+}
+
+int cloud_input_handler(string input){
+  int inputID = stoi(input);
+  inputHandler(inputID);
 }
 
 void inputHandler(int buttonID){
@@ -125,7 +133,7 @@ void changeState(programState newState){
     servo.write(servoOpen);
     servo.detach(); //necessary to use speaker
   }else if(newState == ALARM){
-
+    Particle.publish("Alarm_triggered");
   }else if(newState == SET_PASSWORD){
     currGuess = "......";
 
