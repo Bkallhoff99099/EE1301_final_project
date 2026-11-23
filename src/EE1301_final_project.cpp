@@ -255,7 +255,7 @@ void handleLEDs() {
 
         if (alarmLightOn) {
           //turns red
-          strip.setPixelColor(i, strip.Color(255, 0, 0));
+          strip.setPixelColor(i, strip.Color(0, 255, 0));
         }
         else {
           //turns off the lights
