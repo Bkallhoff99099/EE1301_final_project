@@ -98,6 +98,7 @@ void setup() {
   strip.begin();
   Particle.variable("password verified", password_verified);
   Particle.variable("current state", currState);
+  changeState(LOCKED);
   //Particle.function("cloud input", cloud_input_handler);
   Serial.begin(9600);
   // Put initialization like pinMode and begin functions here
@@ -145,12 +146,14 @@ void changeState(programState newState){
     password_verified = false;
     servo.attach(servoPin);
     servo.write(servoClosed);
+    delay(700);
     servo.detach(); //necessary to use speaker
   }else if(newState == OPEN){
     password_verified = true;
     num_failed_attempts = 0;
     servo.attach(servoPin);
     servo.write(servoOpen);
+    delay(700);
     servo.detach(); //necessary to use speaker
   }else if(newState == ALARM){
  
