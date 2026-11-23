@@ -68,7 +68,7 @@ void flashAlarmLights();
 void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
 
 //cloud methods
-int cloud_input_handler(string input);
+int cloud_input_handler(String input);
 
 // Keeps track of when the last button was pressed
 unsigned long lastButtonTime = 0;
@@ -98,14 +98,15 @@ void setup() {
   strip.begin();
   Particle.variable("password verified", password_verified);
   Particle.variable("current state", currState);
-  //Particle.function("cloud input", cloud_input_handler);
+  Particle.function("cloud_input", cloud_input_handler);
   Serial.begin(9600);
   // Put initialization like pinMode and begin functions here
 }
 
-int cloud_input_handler(string input){
-  int inputID = stoi(input);
+int cloud_input_handler(String input){
+  int inputID = input.toInt();
   inputHandler(inputID);
+  Serial.println("cloud input with ID" + input);
   return 0;
 }
 
