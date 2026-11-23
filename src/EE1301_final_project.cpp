@@ -63,7 +63,7 @@ bool verifyGuess(string guess); //checks if currentGuess matches the password
 void changeState(programState newState); //allows for smooth transitions to start/end states
 void modifyGuess(char newChar); //used to add input to current guess
 void resetAlarm();
-void handleLEDS();
+void handleLEDs();
 void flashAlarmLights();
 
 //cloud methods
@@ -241,6 +241,26 @@ void handleLEDs(){
         strip.setPixelColor(i, strip.Color(255,0,0)); //sets to green
       }
       break;
+      
+    case ALARM:
+      if (millis() - lastAlarmTime >= alarmInterval) {
+
+      lastAlarmTime = millis(); //updates time
+      alarmLightOn = !alarmLightOn; //switches between on and off? I think this is how you do it
+
+      //goes through each one and turns them red
+      for (int i = 0; i < 3; i++) {
+
+        if (alarmLightOn) {
+          //turns red
+          strip.setPixelColor(i, strip.Color(255, 0, 0));
+        }
+        else {
+          //turns off the lights
+          strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
+      }
+      break;
 
     default:
       break;
@@ -293,7 +313,8 @@ void loop() {
     }
 
     //checks if the alarm needs to flash
-    flashAlarmLights();
+    handleLEDs()
+    //flashAlarmLights();
 
     //saves the current button states for the next loop
     prevRedButtonState = redState;
