@@ -29,12 +29,12 @@ int yellowButtonPin = D4;
 int servoPin = A5; //must be either A5 or A2
 int speakerPin = A2; //must be either A5 or A2
 
-#define RED_BUTTON_ID = 0;
-#define BLUE_BUTTON_ID = 1;
-#define GREEN_BUTTON_ID = 2;
-#define YELLOW_BUTTON_ID = 3;
-#define RESET_PASSWORD_BUTTON_ID = 4;
-#define RESET_ALARM_BUTTON_ID = 5;
+#define RED_BUTTON_ID 0
+#define BLUE_BUTTON_ID 1
+#define GREEN_BUTTON_ID 2
+#define YELLOW_BUTTON_ID 3
+#define RESET_PASSWORD_BUTTON_ID 4
+#define RESET_ALARM_BUTTON_ID 5
 
 Servo servo; //do not initialize in the setup method
 const int servoClosed = 90;
@@ -161,7 +161,7 @@ bool verifyGuess(string guess){
 
 void modifyGuess(char newChar){
   currGuess[currGuessIndex] = newChar;
-  currGuessIndex++
+  currGuessIndex++;
   if(currGuessIndex >= 6){
 
     if(currState == LOCKED){ //normal behavior
@@ -244,8 +244,6 @@ void handleLEDS(){
   strip.show();
 }
 
-#define HIGH = true;
-#define LOW = false;
 bool prevRedButtonState = LOW;
 bool prevBlueButtonState = LOW;
 bool prevGreenButtonState = LOW;
