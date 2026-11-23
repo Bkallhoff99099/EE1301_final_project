@@ -65,9 +65,10 @@ void modifyGuess(char newChar); //used to add input to current guess
 void resetAlarm();
 void handleLEDs();
 void flashAlarmLights();
+void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
 
 //cloud methods
-void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
+int cloud_input_handler(string input);
 
 // Keeps track of when the last button was pressed
 unsigned long lastButtonTime = 0;
@@ -95,7 +96,9 @@ void setup() {
   pinMode(yellowButtonPin, INPUT_PULLDOWN);
   pinMode(speakerPin, OUTPUT);
   strip.begin();
-
+  Particle.variable("password verified", password_verified);
+  Particle.variable("current state", currState);
+  //Particle.function("cloud input", cloud_input_handler);
   Serial.begin(9600);
   // Put initialization like pinMode and begin functions here
 }
@@ -156,6 +159,7 @@ void changeState(programState newState){
     currGuess = "......";
 
   }
+  currState = newState;
 }
 
 bool verifyGuess(string guess){
@@ -322,8 +326,8 @@ void loop() {
 
         delayMicroseconds(1162); //the delay, changing the pitch
       }
-else {
-digitalWrite(speakerPin, LOW); 
+    else {
+      digitalWrite(speakerPin, LOW); 
     }
 
     //checks if the alarm needs to flash
