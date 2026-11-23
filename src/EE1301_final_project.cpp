@@ -103,6 +103,7 @@ void setup() {
 int cloud_input_handler(string input){
   int inputID = stoi(input);
   inputHandler(inputID);
+  return 0;
 }
 
 void inputHandler(int buttonID){
@@ -149,6 +150,7 @@ void changeState(programState newState){
     servo.write(servoOpen);
     servo.detach(); //necessary to use speaker
   }else if(newState == ALARM){
+ 
     Particle.publish("Alarm_triggered");
   }else if(newState == SET_PASSWORD){
     currGuess = "......";
@@ -229,7 +231,7 @@ void resetAlarm(){
   }
 }
 
-void handleLEDs(){
+void handleLEDs() {
   switch(currState){
     case LOCKED:
       for(int i = 0; i < num_failed_attempts; i++){
@@ -260,6 +262,7 @@ void handleLEDs(){
           strip.setPixelColor(i, strip.Color(0, 0, 0));
         }
       }
+    }
       break;
 
     default:
@@ -268,6 +271,7 @@ void handleLEDs(){
 
   strip.show();
 }
+
 
 bool prevRedButtonState = LOW;
 bool prevBlueButtonState = LOW;
@@ -310,8 +314,20 @@ void loop() {
         }
     }
 
+
+    if (currState == ALARM) {
+        digitalWrite(speakerPin, HIGH); //making the speaker make noise
+        delayMicroseconds(1162); //the delay, changing the pitch
+        digitalWrite(speakerPin, LOW); //alternating high and low for a
+
+        delayMicroseconds(1162); //the delay, changing the pitch
+      }
+else {
+digitalWrite(speakerPin, LOW); 
+    }
+
     //checks if the alarm needs to flash
-    handleLEDs()
+    handleLEDs();
     //flashAlarmLights();
 
     //saves the current button states for the next loop
