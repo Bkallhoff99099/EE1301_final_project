@@ -68,7 +68,7 @@ void flashAlarmLights();
 void inputHandler(int buttonID); //takes in buttonID and executes the corresponding action
 
 //cloud methods
-int cloud_input_handler(string input);
+int cloud_input_handler(String input);
 
 // Keeps track of when the last button was pressed
 unsigned long lastButtonTime = 0;
@@ -88,6 +88,8 @@ bool alarmLightOn = false;
 //cloud variables
 bool password_verified = false;
 
+int safeStatus = 0;
+
 // setup() runs once, when the device is first turned on
 void setup() {
   pinMode(redButtonPin, INPUT_PULLDOWN);
@@ -96,18 +98,23 @@ void setup() {
   pinMode(yellowButtonPin, INPUT_PULLDOWN);
   pinMode(speakerPin, OUTPUT);
   strip.begin();
-  Particle.variable("password verified", password_verified);
-  Particle.variable("current state", currState);
-  changeState(LOCKED);
+  Particle.variable("verified", password_verified);
+Particle.variable("safeStatus", safeStatus);
+
+changeState(LOCKED);
+
+Particle.function("cloud_input", cloud_input_handler);
+
   //Particle.function("cloud input", cloud_input_handler);
   Serial.begin(9600);
   // Put initialization like pinMode and begin functions here
 }
 
-int cloud_input_handler(string input){
-  int inputID = stoi(input);
+int cloud_input_handler(String input){
+  int inputID = input.toInt();
   inputHandler(inputID);
-  return 0;
+  Serial.println("cloud input with ID" + input);
+  return 1;
 }
 
 void inputHandler(int buttonID){
@@ -128,12 +135,17 @@ void inputHandler(int buttonID){
       }
       break;
     case YELLOW_BUTTON_ID: //yellow/lock button
-      if(currState == OPEN){
+      if(currState == OPEN || currState == SET_PASSWORD){
+        currGuessIndex = 0;
+        currGuess = "......";
         changeState(LOCKED);
       }
       break;
+      
     case RESET_PASSWORD_BUTTON_ID: //reset password button
-      changeState(SET_PASSWORD);
+      if (currState == LOCKED) {
+        changeState(SET_PASSWORD);
+      }
       break;
     case RESET_ALARM_BUTTON_ID:
       resetAlarm();
@@ -160,9 +172,12 @@ void changeState(programState newState){
     Particle.publish("Alarm_triggered");
   }else if(newState == SET_PASSWORD){
     currGuess = "......";
+    currGuessIndex = 0;
+    password_verified = false;
 
   }
   currState = newState;
+  safeStatus = static_cast<int>(newState);
 }
 
 bool verifyGuess(string guess){
@@ -191,14 +206,33 @@ void modifyGuess(char newChar){
     }else if (currState == SET_PASSWORD){ //reset password behavior
       if(password_verified){
         currPassword = currGuess;
-      }else{
-        password_verified = true;
-      }
-    }
+        num_failed_attempts = 0;
 
-    currGuessIndex = 0;
-    currGuess = "......";
-    
+        Serial.println("Password successfully changed");
+
+        changeState(LOCKED);
+
+        }else if(verifyGuess(currGuess)){
+
+        password_verified = true;
+
+        Serial.println("Old password verified");
+        Serial.println("Enter new password");
+
+    }else{
+
+        password_verified = false;
+        num_failed_attempts++;
+
+        Serial.println("Incorrect password");
+
+        if(num_failed_attempts > 3){
+            changeState(ALARM);
+        }
+    }
+}
+currGuessIndex = 0;
+currGuess = "......";
   }
 }
 
@@ -244,7 +278,7 @@ void handleLEDs() {
       for(int i = 0; i < pixel_count; i++){
         strip.setPixelColor(i, strip.Color(0,0,0));
       }
-      for(int i = 0; i < num_failed_attempts; i++){
+      for(int i = 0; i < num_failed_attempts && i < pixel_count; i++){
         strip.setPixelColor(i, strip.Color(0, 255, 0)); //sets to red
       }
       break;
@@ -261,7 +295,7 @@ void handleLEDs() {
       alarmLightOn = !alarmLightOn; //switches between on and off? I think this is how you do it
 
       //goes through each one and turns them red
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < pixel_count; i++) {
 
         if (alarmLightOn) {
           //turns red

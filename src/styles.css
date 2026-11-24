@@ -1,5 +1,5 @@
 .redButton{
-    padding: 10px, 20px;
+    padding: 10px 20px;
     min-height: 30px;
     min-width: 60px;
     border-radius: 15px;
@@ -7,7 +7,7 @@
 }
 
 .blueButton{
-    padding: 10px, 20px;
+    padding: 10px 20px;
     min-height: 30px;
     min-width: 60px;
     border-radius: 15px;
@@ -15,7 +15,7 @@
 }
 
 .greenButton{
-    padding: 10px, 20px;
+    padding: 10px 20px;
     min-height: 30px;
     min-width: 60px;
     border-radius: 15px;
@@ -23,7 +23,7 @@
 }
 
 .yellowButton{
-    padding: 10px, 20px;
+    padding: 10px 20px;
     min-height: 10px;
     min-width: 20px;
     border-radius: 15px;
@@ -33,7 +33,7 @@
 }
 
 .pageNavigation{
-    padding: 10px, 20px;
+    padding: 10px 20px;
     min-height: 10px;
     min-width: 20px;
     border-radius: 5px;

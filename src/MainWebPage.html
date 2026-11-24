@@ -4,6 +4,14 @@
 
 -->
 
+<script>
+    src="https://code.jquery.com/jquery-3.6.0.min.js";
+    var device_id = "0a10aced202194944a06a5c4";
+    var access_token = "4caac0ddd69b0a83be5941c412562577f6c04cad";
+    var base_url = "https://api.particle.io/v1/devices/";
+
+</script>
+
 <head>
     <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -18,17 +26,32 @@ add status indicator here
 
 <!--code input buttons-->
 <div class="main_buttons_div">
-    <button class="redButton" onclick=""></button> 
-    <button class="blueButton"></button>
-    <button class="greenButton"></button> <br>
+    <form>
+    <button class="redButton" id="red" value="0" onclick="input('1')"></button> 
+    <button class="blueButton" id="green" value="2" onclick="input('2')"></button>
+    <button class="greenButton" id="blue" value="1" onclick="input('3')"></button> <br>
+    </form>
 </div>
 
 <script>
+   
+   function input(value) {
+        var functionName = "cloud_input"; // local variable functionName
+        $.ajax({
+            url: 'https://api.particle.io/v1/devices/'+ deviceID +'/' + functionName,
+            method: "POST",
+            
+            headers: { "Authorization": "Bearer " + accessToken },
+            data: { value },
+            success: print("button pressed")
+
+        });
+    };
 
 </script>
 
 
-<button class="yellowButton" >lock safe</button> <br>
+<button class="yellowButton" onclick="input(4)" >lock safe</button> <br>
 <br>
 
 <button class="pageNavigation" onClick="window.location.href='PassWordReset.html'">reset password</button> <br>
