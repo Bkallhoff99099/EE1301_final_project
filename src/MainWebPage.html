@@ -1,59 +1,129 @@
-<!--
+<!DOCTYPE html> 
 
-    I don't know if we need a webpage for the mobile app to run off or if we just want one to have but here it is
+<html>
 
--->
-
-<script>
-    src="https://code.jquery.com/jquery-3.6.0.min.js";
-    var device_id = "0a10aced202194944a06a5c4";
-    var access_token = "4caac0ddd69b0a83be5941c412562577f6c04cad";
-    var base_url = "https://api.particle.io/v1/devices/";
-
-</script>
 
 <head>
-    <link rel="stylesheet" href="styles.css"/>
-</head>
-
-<title>
+    <title>
    SMART Safe
 </title>
-<br>
-add status indicator here
-<br>
+
+    <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<h1>SMART Safe</h1>
+
+<p id="safeStatus">Ready for input</p>
+
+<p id="status">Ready for input</p>
+
+
 <br>
 
-<!--code input buttons-->
 <div class="main_buttons_div">
     <form>
-    <button class="redButton" id="red" value="0" onclick="input('1')"></button> 
-    <button class="blueButton" id="green" value="2" onclick="input('2')"></button>
-    <button class="greenButton" id="blue" value="1" onclick="input('3')"></button> <br>
-    </form>
+    <button class="redButton" id="red" 
+    onclick="input(0)">Red</button> 
+    <button class="blueButton" id="blue" 
+    onclick="input(1)">Blue</button>
+    <button class="greenButton" id="green" 
+    onclick="input(2)">Green</button> <br>
+    
 </div>
 
-<script>
-   
-   function input(value) {
-        var functionName = "cloud_input"; // local variable functionName
-        $.ajax({
-            url: 'https://api.particle.io/v1/devices/'+ deviceID +'/' + functionName,
-            method: "POST",
-            
-            headers: { "Authorization": "Bearer " + accessToken },
-            data: { value },
-            success: print("button pressed")
-
-        });
-    };
-
-</script>
-
-
-<button class="yellowButton" onclick="input(4)" >lock safe</button> <br>
 <br>
 
-<button class="pageNavigation" onClick="window.location.href='PassWordReset.html'">reset password</button> <br>
+<button class="yellowButton"
+        onclick="input(3)">Lock Safe</button>
+
+<br><br>
+
+<button class=""pageNavigation"
+onclick="window.location.href='PassWordReset.html'">Reset Password</button>"
+<script>
+
+// Particle device information
+        const deviceID = "0a10aced202194944a06a5c4";
+        const accessToken = "YOUR_ACCESS_TOKEN";
+        const baseURL = "https://api.particle.io/v1/devices/";
+
+        async function input(value) {
 
 
+    document.getElementById("status").innerText = "Sending last command.....";
+
+try {
+    const response = await fetch(baseURL + deviceID + "/cloud_input", {
+        method: "POST",
+headers: {
+                        "Authorization": "Bearer " + accessToken,
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+
+                    body: "arg=" + value
+                });
+
+                if (!response.ok) {
+                    throw new Error("Command failed");
+                }
+
+                document.getElementById("status").innerText =
+                    "Command sent successfully";
+
+            } catch (error) {
+
+                document.getElementById("status").innerText =
+                    "Unable to send command";
+            }
+        }
+        var functionName = "cloud_input"; // local variable functionName
+ // Gets the current state of the safe
+        async function updateStatus() {
+
+            try {
+
+                const response = await fetch(
+                    baseURL + deviceID + "/safeStatus", {
+
+                    headers: {
+                        "Authorization": "Bearer " + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Status unavailable");
+                }
+
+                // Reads the information returned by Particle
+                const data = await response.json();
+
+                // Possible states of the safe
+                const states = [
+                    "Safe Locked",
+                    "Safe Unlocked",
+                    "Alarm Triggered",
+                    "Resetting Password"
+                ];
+
+                // Displays the current state
+                document.getElementById("safeStatus").innerText =
+                    states[data.result] || "Unknown State";
+
+            } catch (error) {
+
+                document.getElementById("safeStatus").innerText =
+                    "Safe Disconnected";
+            }
+        }
+
+        // Checks the safe immediately
+        updateStatus();
+
+        // Checks the safe every two seconds
+        setInterval(updateStatus, 2000);
+
+    </script>
+
+</body>
+
+</html>
